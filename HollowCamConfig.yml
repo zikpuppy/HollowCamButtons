@@ -1,0 +1,35 @@
+#HollowCam Config File; Some helpful notes are included with each property including possible values
+camera:
+    Rotation:  0
+# Rotation Rotate the camera x degrees in 90 degree increments: 0; 90; 180; 270
+    HorizontalFlip: false
+# HorizontalFlip flips the video display horizontaly possible values true or false
+    VideoXOffset: 0
+# VideoXOffset the distance in pixels from the left side of the screen to the edge of the video window.
+    VideoYOffset: 0
+# VideoYOffset the distance in pixels from the top side of the screen to the edge of the video window
+    MainAlpha: 1
+# MainAlpha sets the transparency of the video window. 1 = 0% transparency 0 = 50% transparent. Set to 0 for debugging, this allows you to see the terminal window and menu under the video.
+    WhiteBalance: "auto"
+# WhiteBalance adjusts the cameras white balance options. Values "auto"; "tung"; "fluor"; "sun"; "shade"; "cloudy"
+    VideoResolution: 4
+# VideoResolution Sets the video window resolution. Values 1="640x480"; 2="960x544"; 3="1024x576"; 4 = "1280x1024"; 5="1024x720"
+
+overlay: 
+    Threshold: 0
+# Threshold sets the tool overlay threshold slider values -3 to 3; default: 0
+    Alpha: 0
+# Alpha sets the tool overlay transparency slider values -3 to 3; default: 0, Positive number = increase opaqueness, Negative numbers = increase transparency.
+    Contrast: 0
+# Contrast sets the tool overlay contrast slider values -3 to 3; default: 0, Positive number = increase contrast, Negative numbers = lower contrast.
+    Exposure: 0
+# Exposure sets the tool overlay exposure slider values -9 to 9; default: 0, Positive number = increase exposure, Negative numbers = lower exposure.
+    Brightness: 0
+# Brightness sets the tool overlay brightness slider values -3 to 3; default: 0, Positive number = increase brightness, Negative numbers = lower brightness.
+
+hardware:
+    AlligmentBoxBtn: 3
+# AlligmentBoxBtn GPIO address for the allignment box button. When pressed this button will display the tool allignment box and set the screen transparency to 50%. Can be used to gather debug info when no keyboard is attached.
+    CaptureOverlayBtn: 10
+# CaptureOverlayBtn GPIO address for overlay button. When pressed this button will capture an image from the area inside the allignment box then overlay that onto the live video, hide the tool allignment box, and set the video transparency to 0.
+    
