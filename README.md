@@ -1,8 +1,11 @@
 # HollowCam
 Hollow Forms are nice
-Original developement Larry Lobel 
+Original developement Larry Lobel  
+GitHub: https://github.com/ljaylob/HollowCam
 Tested on RPi 3 B+, RPi 4, RPi Zero W
 Notes:
+
+#### Config file: HollowCamConfig.yml should be placed in the folder with the hollowCam.py project file. ####
 
 List of requirements to execute the project
 
@@ -29,3 +32,4 @@ sudo apt-get install python3-rpi.gpio
 
 sudo apt install xfce4
 sudo raspi-config
+
