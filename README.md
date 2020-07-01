@@ -4,6 +4,8 @@ Original developement Larry Lobel
 Tested on RPi 3 B+, RPi 4, RPi Zero W
 Notes:
 
+List of requirements to execute the project
+
 Raspbien Lite
 
 sudo apt update
