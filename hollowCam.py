@@ -1,10 +1,23 @@
 from guizero import App, PushButton, Slider, Text, ButtonGroup
+from gpiozero import Button
 import numpy as np
 from PIL import Image, ImageDraw
 from picamera import PiCamera
+from yaml import load
+import time
 
+try:
+    from yaml import CLoader as Loader
+except:
+    from yaml import Loader
+stream = open('HollowCamConfig.yml',  'r')
 
-DEFAULY_ALPHA = "1"
+hollowConfig = load (stream,  Loader=Loader)
+
+cameraProps = hollowConfig.get("camera")
+overlayProps = hollowConfig.get("overlay")
+
+DEFAULT_ALPHA = "1"
     
 curOverlay = 0
 oLay = 0
@@ -20,8 +33,13 @@ OVERLAY_ALPHA = 128
 OALPHA_JUMP = 8
 overlayAlpha = OVERLAY_ALPHA
 
-ROTATE = 180
-   
+ROTATE = cameraProps['Rotation']
+
+#define physical button addresses using BCM pinout
+#GPIO 10
+boxBtn = Button(10)
+#GPIO 3
+calBtn = Button(3)
    
 def pixelProcRed(intensity):
     return intensity
@@ -78,9 +96,9 @@ def box_overlay():
         camera.remove_overlay(curOverlay)
     output = Image.new('RGBA', (imgW, imgH) )
     draw = ImageDraw.Draw(output)
-    draw.rectangle((calboxX, calboxY, calBoxWidth, calboxY+calboxH),  outline=(0, 0, 0))    
+    draw.rectangle((calboxX, calboxY, calBoxWidth, calboxY+calboxH),  outline=(0, 255, 255))    
 
-
+#Crosshairs
     draw.line(((imgW / 2),
               (imgH / 2) - 30,
               (imgW / 2),
@@ -193,16 +211,35 @@ def threshold_changed(slider_value):
 def exposure_changed(slider_value):
 #     print("exposure_changed",int(slider_value) * 2)
     camera.exposure_compensation = (int(slider_value) * 2)
+
+def btn_box_pressed():    
+#   This is for a physical button press It must detect the status of the allignment box then show/hide accordingly
+    print("Physical button allignment box pressed.")
+    mainAlphaSlider.value = 0
+    time.sleep(1)
+    box_overlay()
     
-    
+def btn_cal_pressed():
+#   This is for a physical button press It should clear any previous overlay and snap a new overlay image 
+    print("Physical button callibration pressed.")
+    mainAlphaSlider.value = 1
+    time.sleep(1)
+    cal_overlay()
+
+#Define physical button press events
+#These could be handled as direct calls to box_overlay and cal_overlay,
+#I call an intermediary method to perform addition functions on physical button presses
+boxBtn.when_pressed = btn_box_pressed
+calBtn.when_pressed = btn_cal_pressed
+
 #############################################################
 # Main Code
-app = App(title="HollowCam",layout="grid",width=220, height=750)
+app = App(title="HollowCam",layout="grid",width=220, height=725)
 camera = PiCamera()
-
+camera.hflip = cameraProps['HorizontalFlip']
 #position of video window
-winXoff = 240
-winYoff = 40
+winXoff = cameraProps['VideoXOffset']
+winYoff = cameraProps['VideoYOffset']
 
 # globals
 imgW = 0
@@ -233,9 +270,9 @@ text = Text(app, text="Transp", grid = [1,menu_row],align="left")
 
 menu_row = menu_row +1
 slider = Slider(app, start= -3, end = 3, grid = [0,menu_row],align="left", command=threshold_changed)
-slider.value = 0
+slider.value = overlayProps['Threshold']
 slider = Slider(app, start= -3, end = 3, grid = [1,menu_row],align="left", command=overlayAlpha_changed)
-slider.value = 0
+slider.value = overlayProps['Alpha']
 
 menu_row = menu_row +1
 text = Text(app, text="------------", grid = [0,menu_row],align="left")
@@ -255,7 +292,7 @@ wb_choice = ButtonGroup(app, options=[ ["auto", "auto"],
                                        ["sun", "sunlight"],
                                        ["shade", "shade"],
                                        ["cloudy", "cloudy"] ],
-                        selected="auto",
+                        selected=cameraProps['WhiteBalance'],
                         horizontal=False,
                         grid=[0,menu_row],
                         align="left",
@@ -269,7 +306,7 @@ res_choice = ButtonGroup(app, options=[ ["640x480", 1],
                          horizontal=False,
                          grid=[1,menu_row],
                          align="left",
-                         selected=5,
+                         selected=cameraProps['VideoResolution'],
                          command=resolution_changed)
 
 menu_row = menu_row +1
@@ -277,23 +314,23 @@ menu_row = menu_row +1
 text = Text(app, text="Contrast", grid = [1,menu_row],align="left")
 
 slider = Slider(app, start= -3, end = 3, grid = [0,menu_row],align="left", command=contrast_changed)
-slider.value = 0
+slider.value = overlayProps['Contrast']
 
 menu_row = menu_row +1
 text = Text(app, text="Exposure", grid = [1,menu_row],align="left")
 slider = Slider(app, start= -9, end = 9, grid = [0,menu_row],align="left", command=exposure_changed)
-slider.value = 0
+slider.value = overlayProps['Exposure']
 
 menu_row = menu_row +1
 #text = Text(app, text=" ", grid = [0,7],align="left")
 text = Text(app, text="Bright", grid = [1,menu_row],align="left")
 slider = Slider(app, start= -3, end = 3, grid = [0,menu_row],align="left", command=bright_changed)
-slider.value = 0
+slider.value = overlayProps['Brightness']
 
 menu_row = menu_row +1
 ext = Text(app, text="Alpha", grid = [1,menu_row],align="left")
-slider = Slider(app, start= 0, end = 1, grid = [0,menu_row],align="left", command=mainAlpha_changed)
-slider.value = 1
+mainAlphaSlider = Slider(app, start= 0, end = 1, grid = [0,menu_row],align="left", command=mainAlpha_changed)
+mainAlphaSlider.value = cameraProps['MainAlpha']
 
 menu_row = menu_row +1
 quit_button = PushButton(app, text="Quit",grid=[1,menu_row],align="right",command=app_done)
@@ -301,7 +338,7 @@ quit_button.bg = "red"
 
 # Dont change this order Must select resolution First
 resolution_changed()
-mainAlpha_changed(DEFAULY_ALPHA)
+mainAlpha_changed(DEFAULT_ALPHA)
 # prevOn()
 
 app.display()
