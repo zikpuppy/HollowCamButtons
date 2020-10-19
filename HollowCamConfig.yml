@@ -28,6 +28,7 @@ overlay:
 # Brightness sets the tool overlay brightness slider values -3 to 3; default: 0, Positive number = increase brightness, Negative numbers = lower brightness.
 
 hardware:
+# Connect your buttons to the the selected GPIO pin and GND.
     AlligmentBoxBtn: 3
 # AlligmentBoxBtn GPIO address for the allignment box button. When pressed this button will display the tool allignment box and set the screen transparency to 50%. Can be used to gather debug info when no keyboard is attached.
     CaptureOverlayBtn: 10
