@@ -16,6 +16,7 @@ hollowConfig = load (stream,  Loader=Loader)
 
 cameraProps = hollowConfig.get("camera")
 overlayProps = hollowConfig.get("overlay")
+hardwareProps = hollowConfig.get("hardware")
 
 DEFAULT_ALPHA = "1"
     
@@ -36,10 +37,10 @@ overlayAlpha = OVERLAY_ALPHA
 ROTATE = cameraProps['Rotation']
 
 #define physical button addresses using BCM pinout
-#GPIO 10
-boxBtn = Button(10)
-#GPIO 3
-calBtn = Button(3)
+#GPIO button to activate the alignment box
+boxBtn = Button(hardwareProps['AlligmentBoxBtn'])
+#GPIO button to capture the tool overlay snapshot
+calBtn = Button(hardwareProps['CaptureOverlayBtn'])
    
 def pixelProcRed(intensity):
     return intensity
